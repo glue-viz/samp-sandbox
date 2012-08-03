@@ -25,6 +25,17 @@ class SAMPHelper(object):
 
         self.client.declareMetadata(metadata1)
 
+        self.client.bindReceiveCall("table.load.*", self._load_table)
+        self.client.bindReceiveCall("table.select.*", self._select_rows)
+
+    def _load_table(self, private_key, sender_id, msg_id, mtype, params, extra):
+        print "Received table:", params['url']
+        self.client.ereply(msg_id, SAMP_STATUS_OK, result = {"txt": "printed"})
+
+    def _select_rows(self, private_key, sender_id, msg_id, mtype, params, extra):
+        print "Selected rows:", params['row-list']
+        self.client.ereply(msg_id, SAMP_STATUS_OK, result = {"txt": "printed"})
+
     def send_table(self, filename):
         '''
         Send a table via SAMP
@@ -68,6 +79,6 @@ if __name__ == "__main__":
     try:
         h = SAMPHelper()
         tid = h.send_table('test.xml')
-        h.select_rows(tid, [1, 3, 4])
+        h.select_rows(tid, ["1", "3", "4"])
     finally:
         h.finalize()
